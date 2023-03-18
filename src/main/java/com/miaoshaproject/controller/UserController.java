@@ -8,17 +8,12 @@ import com.miaoshaproject.service.UserService;
 import com.miaoshaproject.service.model.UserModel;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
-
 @Controller("user")
 @RequestMapping("/user")
-public class UserController {
+public class UserController  extends BaseController{
     @Autowired
     private UserService userService;
 
@@ -28,7 +23,8 @@ public class UserController {
         UserModel userModel = userService.getUserById(id);
 
         if (userModel == null) {
-            throw new BusinessException(EmBusinessError.USER_NOT_EXIST);
+
+      throw new BusinessException(EmBusinessError.USER_NOT_EXIST);
         }
 
         UserVO userVO = convertFromModel(userModel);
@@ -43,20 +39,5 @@ public class UserController {
         BeanUtils.copyProperties(userModel, userVO);
         return userVO;
     }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public Object handlerException(HttpServletRequest request, Exception ex) {
-        BusinessException businessException = (BusinessException) ex;
-        CommonReturnType commonReturnType = new CommonReturnType();
-        commonReturnType.setStatus("fail");
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("errCode", businessException.getErrCode());
-        responseData.put("errMsg", businessException.getErrMsg());
-        commonReturnType.setData(responseData);
-        return commonReturnType;
-    }
-
 
 }
