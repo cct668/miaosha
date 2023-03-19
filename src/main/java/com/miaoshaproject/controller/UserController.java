@@ -18,12 +18,13 @@ import java.util.Random;
 
 @Controller("user")
 @RequestMapping("/user")
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true", allowedHeaders = "*")
 public class UserController extends BaseController {
     @Autowired
     private HttpServletRequest httpServletRequest;
     @Autowired
     private UserService userService;
+
     @RequestMapping(value = "/register", method = {RequestMethod.POST}, consumes = CONTENT_TYPE_FORMED)
     @ResponseBody
     public CommonReturnType register(@RequestParam(name = "telphone") String telphone,
@@ -44,8 +45,8 @@ public class UserController extends BaseController {
             userModel.setTelphone(telphone);
             userModel.setRegisterMode("byphone");
             userModel.setEncrptPassword(MD5Encoder.encode(password.getBytes()));
-userService.register(userModel);
-return CommonReturnType.create(null);
+            userService.register(userModel);
+            return CommonReturnType.create(null);
 
         }
     }

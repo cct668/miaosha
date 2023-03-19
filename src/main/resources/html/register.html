@@ -107,6 +107,7 @@
           "name":name
         },
         //允许跨域请求
+        xhrFields:{withCredentials:true},
         success:function(data){
           if (data.status == "success") {
             alert("注册成功");
