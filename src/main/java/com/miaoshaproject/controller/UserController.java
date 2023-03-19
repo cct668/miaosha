@@ -12,8 +12,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import sun.misc.BASE64Encoder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 @Controller("user")
@@ -30,9 +34,9 @@ public class UserController extends BaseController {
     public CommonReturnType register(@RequestParam(name = "telphone") String telphone,
                                      @RequestParam(name = "otpCode") String otpCode,
                                      @RequestParam(name = "name") String name,
-                                     @RequestParam(name = "gender") Integer gender,
-                                     @RequestParam(name = "age") Integer age,
-                                     @RequestParam(name = "password") String password) throws BusinessException {
+                                     @RequestParam(name = "gender") String gender,
+                                     @RequestParam(name = "age") String age,
+                                     @RequestParam(name = "password") String password) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
         {
             String inSessionOtpCode = (String) this.httpServletRequest.getSession().getAttribute(telphone);
             if (!StringUtils.equals(otpCode, inSessionOtpCode)) {
@@ -40,15 +44,26 @@ public class UserController extends BaseController {
             }
             UserModel userModel = new UserModel();
             userModel.setName(name);
-            userModel.setGender(new Byte(String.valueOf(gender.intValue())));
-            userModel.setAge(age);
+            userModel.setGender(Byte.valueOf(gender));
+            userModel.setAge(Integer.valueOf(age));
             userModel.setTelphone(telphone);
             userModel.setRegisterMode("byphone");
-            userModel.setEncrptPassword(MD5Encoder.encode(password.getBytes()));
+            userModel.setThirdPartyId("1");
+            userModel.setEncrptPassword(this.EncodeByMd5(password));
+
             userService.register(userModel);
             return CommonReturnType.create(null);
 
         }
+    }
+
+    public String EncodeByMd5(String str) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        //确定计算方法
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        BASE64Encoder base64en = new BASE64Encoder();
+        //加密字符串
+        String newstr = base64en.encode(md5.digest(str.getBytes("utf-8")));
+        return newstr;
     }
 
     @RequestMapping(value = "/getopt", method = {RequestMethod.POST}, consumes = CONTENT_TYPE_FORMED)
