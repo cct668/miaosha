@@ -10,7 +10,6 @@ public BusinessException(CommonError commonError,String errMsg){
     super();
     this.commonError=commonError;
     this.commonError.setErrMsg(errMsg);
-
 }
 
     @Override
